@@ -41,7 +41,7 @@ module.exports = (() => {
             "github": "https://github.com/respecting/NitroPerks",
             "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js"
         },
-        "main": "NitroPerks.user.js"
+        "main": "NitroPerks.plugin.js"
     };
 
     return !global.ZeresPluginLibrary ? class {
