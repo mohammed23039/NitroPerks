@@ -86,15 +86,13 @@ module.exports = (() => {
 
                 onStart() {
                     originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType
-
                     DiscordAPI.currentUser.discordObject.premiumType = 2; // trick discord into thinking that we have Discord Nitro but we don't
 
                     //fix emotes with bad method
                     Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
                         msg.validNonShortcutEmojis.forEach(emoji => {
                             if (emoji.url.startsWith("/assets/")) return;
-                            console.log(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`)
-                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`, emoji.url + "&size=40")
+                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`, emoji.url + "&size=40 ")
                         })
                     });
                 }
