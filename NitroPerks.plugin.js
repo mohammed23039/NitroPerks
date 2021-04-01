@@ -92,7 +92,15 @@ module.exports = (() => {
                     Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
                         msg.validNonShortcutEmojis.forEach(emoji => {
                             if (emoji.url.startsWith("/assets/")) return;
-                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`, emoji.url + "&size=40 ")
+                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, emoji.url + "&size=40 ")
+                        })
+                    });
+                    //for editing message also
+                    Patcher.before(DiscordModules.MessageActions, "editMessage", (_,obj) => {
+                        let msg = obj[2].content
+                        if (msg.search(/\d{18}/g) == -1) return;
+                        msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g).forEach(idfkAnymore=>{
+                            obj[2].content = obj[2].content.replace(idfkAnymore, `https://cdn.discordapp.com/emojis/${idfkAnymore.match(/\d{18}/g)[0]}?size=40`)
                         })
                     });
                 }
