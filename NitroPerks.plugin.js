@@ -1,7 +1,8 @@
 /**
  * @name NitroPerks
  * @website https://github.com/respecting/NitroPerks
- * @source https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js
+ * @source https://raw.githubusercontent.com/respecting/NitroPerks/main/NitroPerks.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/respecting/NitroPerks/main/NitroPerks.plugin.js
  */
 /*@cc_on
 @if (@_jscript)
