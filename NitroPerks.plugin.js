@@ -36,7 +36,7 @@ module.exports = (() => {
                 "discord_id": "407348579376693260",
                 "github_username": "respecting"
             }],
-            "version": "1.0.0",
+            "version": "1.1.0",
             "description": "Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)",
             "github": "https://github.com/respecting/NitroPerks",
             "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js"
