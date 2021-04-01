@@ -28,14 +28,38 @@
 @else@*/
 
 module.exports = (() => {
-    const config = {"info":{"name":"NitroPerks","authors":[{"name":"lemons","discord_id":"407348579376693260","github_username":"respecting"}],"version":"1.0.0","description":"Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)","github":"https://github.com/respecting/NitroPerks","github_raw":"https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js"},"main":"NitroPerks.user.js"};
+    const config = {
+        "info": {
+            "name": "NitroPerks",
+            "authors": [{
+                "name": "lemons",
+                "discord_id": "407348579376693260",
+                "github_username": "respecting"
+            }],
+            "version": "1.0.0",
+            "description": "Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)",
+            "github": "https://github.com/respecting/NitroPerks",
+            "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js"
+        },
+        "main": "NitroPerks.user.js"
+    };
 
     return !global.ZeresPluginLibrary ? class {
-        constructor() {this._config = config;}
-        getName() {return config.info.name;}
-        getAuthor() {return config.info.authors.map(a => a.name).join(", ");}
-        getDescription() {return config.info.description;}
-        getVersion() {return config.info.version;}
+        constructor() {
+            this._config = config;
+        }
+        getName() {
+            return config.info.name;
+        }
+        getAuthor() {
+            return config.info.authors.map(a => a.name).join(", ");
+        }
+        getDescription() {
+            return config.info.description;
+        }
+        getVersion() {
+            return config.info.version;
+        }
         load() {
             BdApi.showConfirmationModal("Library Missing", `The library plugin needed for ${config.info.name} is missing. Please click Download Now to install it.`, {
                 confirmText: "Download Now",
@@ -52,32 +76,35 @@ module.exports = (() => {
         stop() {}
     } : (([Plugin, Api]) => {
         const plugin = (Plugin, Api) => {
-    const {Patcher, DiscordModules, DiscordAPI} = Api;
-    let originalNitroStatus;
-    return class NitroPerks extends Plugin {
+            const {
+                Patcher,
+                DiscordModules,
+                DiscordAPI
+            } = Api;
+            let originalNitroStatus;
+            return class NitroPerks extends Plugin {
 
-        onStart() {
-            console.log(originalNitroStatus)
-            originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType
+                onStart() {
+                    originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType
 
-            DiscordAPI.currentUser.discordObject.premiumType = 2; // trick discord into thinking that we have Discord Nitro but we don't
+                    DiscordAPI.currentUser.discordObject.premiumType = 2; // trick discord into thinking that we have Discord Nitro but we don't
 
-            //fix emotes with bad method
-            Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
-                msg.validNonShortcutEmojis.forEach(emoji=>{
-                    if(emoji.url.startsWith("/assets/")) return;
-                    console.log(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`)
-                    msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`, emoji.url+"&size=40")
-                })
-            });
-        }
+                    //fix emotes with bad method
+                    Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
+                        msg.validNonShortcutEmojis.forEach(emoji => {
+                            if (emoji.url.startsWith("/assets/")) return;
+                            console.log(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`)
+                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString}${emoji.id}>`, emoji.url + "&size=40")
+                        })
+                    });
+                }
 
-        onStop() {
-            DiscordAPI.currentUser.discordObject.premiumType = originalNitroStatus;
-            Patcher.unpatchAll();
-        }
-    };
-};
+                onStop() {
+                    DiscordAPI.currentUser.discordObject.premiumType = originalNitroStatus;
+                    Patcher.unpatchAll();
+                }
+            };
+        };
         return plugin(Plugin, Api);
     })(global.ZeresPluginLibrary.buildPlugin(config));
 })();
