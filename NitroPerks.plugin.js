@@ -27,7 +27,6 @@
 	WScript.Quit();
 
 @else@*/
-
 module.exports = (() => {
     const config = {
         "info": {
@@ -80,34 +79,91 @@ module.exports = (() => {
             const {
                 Patcher,
                 DiscordModules,
-                DiscordAPI
+                DiscordAPI,
+                Settings,
+                Toasts,
+                PluginUtilities
             } = Api;
-            let originalNitroStatus;
             return class NitroPerks extends Plugin {
+                defaultSettings = {
+                    "emojiSize": 40,
+                    "screenSharing": false,
+                    "emojiBypass": true
+                };
+                settings = PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
+                originalNitroStatus = 0;
+                getSettingsPanel() {
+                    return Settings.SettingPanel.build(_ => this.saveAndUpdate(), ...[
+                        new Settings.SettingGroup("Emoji Size").append(
+                            new Settings.Textbox("Size", "A number from 16 to 64.", this.settings.emojiSize,
+                                size => {
+                                    if (isNaN(size)) return Toasts.error("Please input a number.")
+                                    if (size < 16) return Toasts.error("Please input a number above 16!")
+                                    if (size > 64) return Toasts.error("Please input a number below 64!")
+                                    this.settings.emojiSize = size
+                                }
+                            )
+                        ),
+                            new Settings.SettingGroup("Features").append(...[
+                                new Settings.Switch("High Quality Screensharing", "Enable or disable 1080p/source @ 60fps screensharing. This adapts to your current nitro status.", this.settings.screenSharing, value => this.settings.screenSharing = value),
+                                new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value)
+                            ])
+                    ])
+                }
+                
+                saveAndUpdate() {
+                    PluginUtilities.saveSettings(this.getName(), this.settings)
+                    if (!this.settings.screenSharing) {
+                        switch (this.originalNitroStatus) {
+                            case 1:
+                                BdApi.injectCSS("screenShare", `#app-mount > div.layerContainer-yqaFcK > div.layer-2KE1M9 > div > div > form > div:nth-child(2) > div > div > div.flex-1xMQg5.flex-1O1GKY.horizontal-1ae9ci.horizontal-2EEEnY.flex-1O1GKY.directionRow-3v3tfG.justifyStart-2NDFzi.alignStretch-DpGPf3.noWrap-3jynv6.modalContent-BM7Qeh > div:nth-child(1) > div > button:nth-child(4) {
+                                    display: none;
+                                  }`)
+                            break;
+                            default: //if user doesn't have nitro?
+                                BdApi.injectCSS("screenShare", `#app-mount > div.layerContainer-yqaFcK > div.layer-2KE1M9 > div > div > form > div:nth-child(2) > div > div > div.flex-1xMQg5.flex-1O1GKY.horizontal-1ae9ci.horizontal-2EEEnY.flex-1O1GKY.directionRow-3v3tfG.justifyStart-2NDFzi.alignStretch-DpGPf3.noWrap-3jynv6.modalContent-BM7Qeh > div:nth-child(1) > div > button:nth-child(4) {
+                                    display: none;
+                                  }
+                                  #app-mount > div.layerContainer-yqaFcK > div.layer-2KE1M9 > div > div > form > div:nth-child(2) > div > div > div.flex-1xMQg5.flex-1O1GKY.horizontal-1ae9ci.horizontal-2EEEnY.flex-1O1GKY.directionRow-3v3tfG.justifyStart-2NDFzi.alignStretch-DpGPf3.noWrap-3jynv6.modalContent-BM7Qeh > div:nth-child(1) > div > button:nth-child(3) {
+                                    display: none;
+                                  }
+                                  #app-mount > div.layerContainer-yqaFcK > div.layer-2KE1M9 > div > div > form > div:nth-child(2) > div > div > div.flex-1xMQg5.flex-1O1GKY.horizontal-1ae9ci.horizontal-2EEEnY.flex-1O1GKY.directionRow-3v3tfG.justifyStart-2NDFzi.alignStretch-DpGPf3.noWrap-3jynv6.modalContent-BM7Qeh > div:nth-child(2) > div > button:nth-child(3) {
+                                    display: none;
+                                  }`)
+                            break;
+                        }
+                    }
 
+                    if (this.settings.screenSharing) BdApi.clearCSS("screenShare")
+
+                    if (this.settings.emojiBypass) {
+                        //fix emotes with bad method
+                        Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
+                            msg.validNonShortcutEmojis.forEach(emoji => {
+                                if (emoji.url.startsWith("/assets/")) return;
+                                msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, emoji.url + `&size=${this.settings.emojiSize} `)
+                            })
+                        });
+                        //for editing message also
+                        Patcher.before(DiscordModules.MessageActions, "editMessage", (_,obj) => {
+                            let msg = obj[2].content
+                            if (msg.search(/\d{18}/g) == -1) return;
+                            msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g).forEach(idfkAnymore=>{
+                                obj[2].content = obj[2].content.replace(idfkAnymore, `https://cdn.discordapp.com/emojis/${idfkAnymore.match(/\d{18}/g)[0]}?size=${this.settings.emojiSize}`)
+                            })
+                        });
+                    }
+
+                    if(!this.settings.emojiBypass) Patcher.unpatchAll()
+                }
                 onStart() {
-                    originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType
-                    DiscordAPI.currentUser.discordObject.premiumType = 2; // trick discord into thinking that we have Discord Nitro but we don't
-
-                    //fix emotes with bad method
-                    Patcher.before(DiscordModules.MessageActions, "sendMessage", (_, [, msg]) => {
-                        msg.validNonShortcutEmojis.forEach(emoji => {
-                            if (emoji.url.startsWith("/assets/")) return;
-                            msg.content = msg.content.replace(`<${emoji.animated ? "a" : ""}${emoji.allNamesString.replace(/~\d/g, "")}${emoji.id}>`, emoji.url + "&size=40 ")
-                        })
-                    });
-                    //for editing message also
-                    Patcher.before(DiscordModules.MessageActions, "editMessage", (_,obj) => {
-                        let msg = obj[2].content
-                        if (msg.search(/\d{18}/g) == -1) return;
-                        msg.match(/<a:.+?:\d{18}>|<:.+?:\d{18}>/g).forEach(idfkAnymore=>{
-                            obj[2].content = obj[2].content.replace(idfkAnymore, `https://cdn.discordapp.com/emojis/${idfkAnymore.match(/\d{18}/g)[0]}?size=40`)
-                        })
-                    });
+                    this.originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType;
+                    this.saveAndUpdate()
+                    DiscordAPI.currentUser.discordObject.premiumType = 2
                 }
 
                 onStop() {
-                    DiscordAPI.currentUser.discordObject.premiumType = originalNitroStatus;
+                    DiscordAPI.currentUser.discordObject.premiumType = this.originalNitroStatus;
                     Patcher.unpatchAll();
                 }
             };
