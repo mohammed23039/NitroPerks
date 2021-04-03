@@ -36,7 +36,7 @@ module.exports = (() => {
                 "discord_id": "407348579376693260",
                 "github_username": "respecting"
             }],
-            "version": "1.2.0",
+            "version": "1.3.0",
             "description": "Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)",
             "github": "https://github.com/respecting/NitroPerks",
             "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/master/NitroPerks.plugin.js"
@@ -88,10 +88,13 @@ module.exports = (() => {
                 defaultSettings = {
                     "emojiSize": 40,
                     "screenSharing": false,
-                    "emojiBypass": true
+                    "emojiBypass": true,
+                    "clientsidePfp": false,
+                    "pfpUrl": "",
                 };
                 settings = PluginUtilities.loadSettings(this.getName(), this.defaultSettings);
                 originalNitroStatus = 0;
+                clientsidePfp;
                 getSettingsPanel() {
                     return Settings.SettingPanel.build(_ => this.saveAndUpdate(), ...[
                         new Settings.SettingGroup("Emoji Size").append(
@@ -106,7 +109,20 @@ module.exports = (() => {
                         ),
                             new Settings.SettingGroup("Features").append(...[
                                 new Settings.Switch("High Quality Screensharing", "Enable or disable 1080p/source @ 60fps screensharing. This adapts to your current nitro status.", this.settings.screenSharing, value => this.settings.screenSharing = value),
-                                new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value)
+                                new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value),
+                                new Settings.Switch("Clientsided Profile Picture", "Enable or disable clientsided profile pictures.", this.settings.clientsidePfp, value => this.settings.clientsidePfp = value)
+                            ]),
+                            new Settings.SettingGroup("Profile Picture").append(...[
+                                new Settings.Textbox("URL", "The direct URL that has the profile picture you want.", this.settings.pfpUrl,
+                                    image => {
+                                        try {
+                                            new URL(image)
+                                        } catch {
+                                            return Toasts.error('This is an invalid URL!')
+                                        }
+                                        this.settings.pfpUrl = image
+                                    }
+                                )
                             ])
                     ])
                 }
@@ -154,7 +170,28 @@ module.exports = (() => {
                         });
                     }
 
-                    if(!this.settings.emojiBypass) Patcher.unpatchAll()
+                    if(!this.settings.emojiBypass) Patcher.unpatchAll(DiscordModules.MessageActions)
+
+                    if (this.settings.clientsidePfp && this.settings.pfpUrl) {
+                        this.clientsidePfp = setInterval(()=>{
+                            document.querySelectorAll(`[src="${DiscordAPI.currentUser.discordObject.avatarURL.replace(".png", ".webp")}"]`).forEach(avatar=>{
+                                avatar.src = this.settings.pfpUrl
+                            })
+                            document.querySelectorAll(`[src="${DiscordAPI.currentUser.discordObject.avatarURL}"]`).forEach(avatar=>{
+                                avatar.src = this.settings.pfpUrl
+                            })
+                        }, 100)
+                    }
+                    if (!this.settings.clientsidePfp) this.removeClientsidePfp()
+                }
+                removeClientsidePfp() {
+                    clearInterval(this.clientsidePfp)
+                    document.querySelectorAll(`[src="${this.settings.pfpUrl}"]`).forEach(avatar=>{
+                        avatar.src = DiscordAPI.currentUser.discordObject.avatarURL
+                    })
+                    document.querySelectorAll(`[src="${this.settings.pfpUrl}"]`).forEach(avatar=>{
+                        avatar.src = DiscordAPI.currentUser.discordObject.avatarURL
+                    })
                 }
                 onStart() {
                     this.originalNitroStatus = DiscordAPI.currentUser.discordObject.premiumType;
@@ -164,6 +201,7 @@ module.exports = (() => {
 
                 onStop() {
                     DiscordAPI.currentUser.discordObject.premiumType = this.originalNitroStatus;
+                    this.removeClientsidePfp()
                     Patcher.unpatchAll();
                 }
             };
