@@ -86,7 +86,7 @@ module.exports = (() => {
             } = Api;
             return class NitroPerks extends Plugin {
                 defaultSettings = {
-                    "emojiSize": 40,
+                    "emojiSize": "48",
                     "screenSharing": false,
                     "emojiBypass": true,
                     "clientsidePfp": false,
@@ -98,22 +98,20 @@ module.exports = (() => {
                 screenShareFix;
                 getSettingsPanel() {
                     return Settings.SettingPanel.build(_ => this.saveAndUpdate(), ...[
-                        new Settings.SettingGroup("Emoji Size").append(
-                            new Settings.Textbox("Size", "A number from 16 to 64.", this.settings.emojiSize,
+                        new Settings.SettingGroup("Features").append(...[
+                            new Settings.Switch("High Quality Screensharing", "Enable or disable 1080p/source @ 60fps screensharing. This adapts to your current nitro status.", this.settings.screenSharing, value => this.settings.screenSharing = value)
+                        ]),
+                        new Settings.SettingGroup("Emojis").append(
+                            new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value),
+                            new Settings.Dropdown("Size", "The size of the emoji in pixels.", this.settings.emojiSize,
+                            [{label: "16 pixels", value: "16"}, {label: "20 pixels", value: "20"}, {label: "32 pixels", value: "32"}, {label: "40 pixels", value: "40"}, {label: "Default (48 pixels)", value: "48"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}],
                                 size => {
-                                    if (isNaN(size)) return Toasts.error("Please input a number.")
-                                    if (size < 16) return Toasts.error("Please input a number above 16!")
-                                    if (size > 64) return Toasts.error("Please input a number below 64!")
                                     this.settings.emojiSize = size
                                 }
                             )
                         ),
-                            new Settings.SettingGroup("Features").append(...[
-                                new Settings.Switch("High Quality Screensharing", "Enable or disable 1080p/source @ 60fps screensharing. This adapts to your current nitro status.", this.settings.screenSharing, value => this.settings.screenSharing = value),
-                                new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value),
-                                new Settings.Switch("Clientsided Profile Picture", "Enable or disable clientsided profile pictures.", this.settings.clientsidePfp, value => this.settings.clientsidePfp = value)
-                            ]),
                             new Settings.SettingGroup("Profile Picture").append(...[
+                                new Settings.Switch("Clientsided Profile Picture", "Enable or disable clientsided profile pictures.", this.settings.clientsidePfp, value => this.settings.clientsidePfp = value),
                                 new Settings.Textbox("URL", "The direct URL that has the profile picture you want.", this.settings.pfpUrl,
                                     image => {
                                         try {
