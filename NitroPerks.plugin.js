@@ -104,7 +104,7 @@ module.exports = (() => {
                         new Settings.SettingGroup("Emojis").append(
                             new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value),
                             new Settings.Dropdown("Size", "The size of the emoji in pixels.", this.settings.emojiSize,
-                            [{label: "16 pixels", value: "16"}, {label: "20 pixels", value: "20"}, {label: "32 pixels", value: "32"}, {label: "Default (40 pixels)", value: "40"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}],
+                            [{label: "16 pixels", value: "16"}, {label: "20 pixels", value: "20"}, {label: "32 pixels", value: "32"}, {label: "Default (40 pixels)", value: "40"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}],
                                 size => {
                                     this.settings.emojiSize = size
                                 }
