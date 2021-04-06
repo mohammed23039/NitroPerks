@@ -36,7 +36,7 @@ module.exports = (() => {
                 "discord_id": "407348579376693260",
                 "github_username": "respecting"
             }],
-            "version": "1.3.3",
+            "version": "1.3.4",
             "description": "Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)",
             "github": "https://github.com/respecting/NitroPerks",
             "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/main/NitroPerks.plugin.js"
@@ -190,7 +190,7 @@ module.exports = (() => {
                             })
                             document.querySelectorAll(`.avatarContainer-28iYmV.avatar-3tNQiO.avatarSmall-1PJoGO`).forEach(avatar=>{
                                 if (!avatar.style.backgroundImage.includes(DiscordAPI.currentUser.discordObject.avatarURL)) return;
-                                avatar.style = `background-image: url("https://media1.giphy.com/media/3ohc16IrARPOpjbfgI/giphy.gif");`
+                                avatar.style = `background-image: url("${this.settings.pfpUrl}");`
                             })
                         }, 100)
                     }
@@ -205,6 +205,7 @@ module.exports = (() => {
                         avatar.src = DiscordAPI.currentUser.discordObject.avatarURL
                     })
                     document.querySelectorAll(`.avatarContainer-28iYmV.avatar-3tNQiO.avatarSmall-1PJoGO`).forEach(avatar=>{
+                        if (!avatar.style.backgroundImage.includes(this.settings.pfpUrl)) return;
                         avatar.style = `background-image: url("${DiscordAPI.currentUser.discordObject.avatarURL}");`
                     })
                 }
