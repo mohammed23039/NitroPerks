@@ -189,7 +189,8 @@ module.exports = (() => {
                                 avatar.src = this.settings.pfpUrl
                             })
                             document.querySelectorAll(`.avatarContainer-28iYmV.avatar-3tNQiO.avatarSmall-1PJoGO`).forEach(avatar=>{
-                                avatar.style = `background-image: url("${this.settings.pfpUrl}");`
+                                if (!avatar.style.backgroundImage.includes(DiscordAPI.currentUser.discordObject.avatarURL)) return;
+                                avatar.style = `background-image: url("https://media1.giphy.com/media/3ohc16IrARPOpjbfgI/giphy.gif");`
                             })
                         }, 100)
                     }
