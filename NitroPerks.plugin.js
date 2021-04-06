@@ -36,7 +36,7 @@ module.exports = (() => {
                 "discord_id": "407348579376693260",
                 "github_username": "respecting"
             }],
-            "version": "1.3.4",
+            "version": "1.3.5",
             "description": "Unlock all screensharing modes, and use cross-server emotes & gif emotes, Discord wide! (You CANNOT upload 100MB files though. :/)",
             "github": "https://github.com/respecting/NitroPerks",
             "github_raw": "https://raw.githubusercontent.com/respecting/NitroPerks/main/NitroPerks.plugin.js"
@@ -86,7 +86,7 @@ module.exports = (() => {
             } = Api;
             return class NitroPerks extends Plugin {
                 defaultSettings = {
-                    "emojiSize": "48",
+                    "emojiSize": "40",
                     "screenSharing": false,
                     "emojiBypass": true,
                     "clientsidePfp": false,
@@ -104,7 +104,7 @@ module.exports = (() => {
                         new Settings.SettingGroup("Emojis").append(
                             new Settings.Switch("Nitro Emotes Bypass", "Enable or disable using the Nitro Emote bypass.", this.settings.emojiBypass, value => this.settings.emojiBypass = value),
                             new Settings.Dropdown("Size", "The size of the emoji in pixels.", this.settings.emojiSize,
-                            [{label: "16 pixels", value: "16"}, {label: "20 pixels", value: "20"}, {label: "32 pixels", value: "32"}, {label: "40 pixels", value: "40"}, {label: "Default (48 pixels)", value: "48"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}],
+                            [{label: "16 pixels", value: "16"}, {label: "20 pixels", value: "20"}, {label: "32 pixels", value: "32"}, {label: "Default (40 pixels)", value: "40"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}, {label: "64 pixels", value: "64"}],
                                 size => {
                                     this.settings.emojiSize = size
                                 }
